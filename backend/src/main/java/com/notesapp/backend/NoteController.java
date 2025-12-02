@@ -7,7 +7,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/notes")
-@CrossOrigin(origins = "*")
 public class NoteController {
     @Autowired
     private NoteService noteService;
