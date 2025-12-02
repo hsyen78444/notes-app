@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 
 // ==========================================
 // 1. STATE MANAGEMENT
@@ -9,7 +9,6 @@ const isModalOpen = ref(false);
 const isLoading = ref(false);
 const errorMsg = ref('');
 
-// Form State
 const currentNote = ref({
   id: null,
   title: '',
@@ -17,9 +16,12 @@ const currentNote = ref({
 });
 
 // ==========================================
-// 2. API CONFIGURATION (TODO: UPDATE THIS)
+// 2. API CONFIGURATION (FIXED)
 // ==========================================
-const API_BASE_URL = 'http://localhost:8080/api/notes'; // Replace with your actual deployed Backend URL
+// Logic: If VITE_API_BASE_URL exists (Vercel), use it. Otherwise use localhost.
+// Note: We remove trailing slashes from the env var to prevent double slashes.
+const BACKEND_HOST = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080').replace(/\/$/, '');
+const API_URL = `${BACKEND_HOST}/api/notes`;
 
 // ==========================================
 // 3. CRUD OPERATIONS
@@ -29,12 +31,13 @@ const API_BASE_URL = 'http://localhost:8080/api/notes'; // Replace with your act
 const fetchNotes = async () => {
   isLoading.value = true;
   try {
-    const response = await fetch(API_BASE_URL);
+    const response = await fetch(API_URL);
+    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
     const data = await response.json();
     notes.value = data;
   } catch (err) {
     errorMsg.value = 'Failed to load notes.';
-    console.error(err);
+    console.error("Fetch error:", err);
   } finally {
     isLoading.value = false;
   }
@@ -46,12 +49,12 @@ const saveNote = async () => {
 
   const isEditing = !!currentNote.value.id;
   const method = isEditing ? 'PUT' : 'POST';
+  // Use API_URL here
   const url = isEditing 
-    ? `${API_BASE_URL}/${currentNote.value.id}` 
-    : API_BASE_URL;
+    ? `${API_URL}/${currentNote.value.id}` 
+    : API_URL;
 
   try {
-    
     const response = await fetch(url, {
       method: method,
       headers: { 'Content-Type': 'application/json' },
@@ -62,7 +65,7 @@ const saveNote = async () => {
     });
     if (!response.ok) throw new Error('API Error');
     closeModal();
-    await fetchNotes(); // Refresh list from server
+    await fetchNotes(); 
   } catch (err) {
     console.error(err);
     alert('Error saving note');
@@ -75,9 +78,9 @@ const deleteNote = async (id) => {
   if (!confirmDelete) return;
 
   try {
-    const response = await fetch(`${API_BASE_URL}/${id}`, { method: 'DELETE' });
+    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
     if (!response.ok) throw new Error('Delete failed');
-    await fetchNotes(); // Refresh list from server
+    await fetchNotes(); 
   } catch (err) {
     console.error(err);
     alert('Failed to delete');
@@ -101,7 +104,6 @@ const closeModal = () => {
   errorMsg.value = '';
 };
 
-// Lifecycle Hook
 onMounted(() => {
   fetchNotes();
 });
@@ -206,7 +208,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Simple animation for the modal entrance */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translateY(10px) scale(0.98); }
   to { opacity: 1; transform: translateY(0) scale(1); }
