@@ -8,7 +8,7 @@ A modern, decoupled web application for managing notes. Built with **Vue.js 3** 
 
 ## 🚀 Live Demo
 
-* **Frontend (Vercel):** https://notes-app-git-main-hsyen78444s-projects.vercel.app/
+* **Frontend (Vercel):** [https://notes-app-git-main-hsyen78444s-projects.vercel.app/](https://notes-app-git-main-hsyen78444s-projects.vercel.app?_vercel_share=Ony0WOjJEfQd74B3jNMF91dTb6COQ3rs)
 * **Backend API (Render):** https://notes-app-71cr.onrender.com/api/notes
 
 ---
